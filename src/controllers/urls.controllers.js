@@ -2,7 +2,7 @@ import { nanoid } from "nanoid";
 import { urlTable } from "../models/urls.model.js";
 import db from "../db/index.js";
 import { shortenPostRequestBodySchema } from "../validations/request.validation.js";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 const shortUrl = async (req, res) => {
     try {
@@ -36,6 +36,16 @@ const getAllUrls = async (req, res) => {
     }
 }
 
+const deleteUrl = async (req, res) => {
+    try {
+        const { id } = req.params
+        await db.delete(urlTable).where(and(eq(urlTable.id, id), eq(urlTable.userId, req.user.id)))
+        return res.status(200).json({ message: 'URL deleted successfully' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 const shortCode = async (req, res) => {
     try {
         const { shortCode: code } = req.params
@@ -54,4 +64,4 @@ const shortCode = async (req, res) => {
     }
 }
 
-export { shortUrl, shortCode, getAllUrls };
+export { shortUrl, shortCode, getAllUrls, deleteUrl };
