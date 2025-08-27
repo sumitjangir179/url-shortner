@@ -1,17 +1,19 @@
+import { eq } from "drizzle-orm";
 import db from "../db/index.js";
 import { userTable } from "../models/user.model.js";
+import jwt from "jsonwebtoken";
 
 const verifyJWT = async (req, res, next) => {
     try {
-        const token = req.cookies.accessToken || req.header('Authorization')?.replace('Bearer ', '');
+        const token = req.cookies?.accessToken || req.header('Authorization')?.replace('Bearer ', '');
 
         if (!token) {
             throw new Error('Unauthorized request');
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await db.select().from(userTable).where({ id: decoded.id });
+        const [user] = await db.select().from(userTable).where(eq(userTable.id, decodedToken.id));
 
         if (!user) {
             throw new Error('Unauthorized request');
