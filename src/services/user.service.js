@@ -1,4 +1,4 @@
-import db from "../db.js";
+import db from "../db/index.js";
 import { userTable } from "../models/user.model.js";
 import { eq } from "drizzle-orm";
 
