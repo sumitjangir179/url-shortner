@@ -2,6 +2,7 @@ import { nanoid } from "nanoid";
 import { urlTable } from "../models/urls.model.js";
 import db from "../db/index.js";
 import { shortenPostRequestBodySchema } from "../validations/request.validation.js";
+import { eq } from "drizzle-orm";
 
 const shortUrl = async (req, res) => {
     try {
@@ -24,4 +25,22 @@ const shortUrl = async (req, res) => {
     }
 }
 
-export { shortUrl };
+const shortCode = async (req, res) => {
+    try {
+        const { shortCode: code } = req.params
+
+        const [targetUrl] = await db.select({ targetUrl: urlTable.targetUrl }).from(urlTable).where(eq(urlTable.shortCode, code));
+
+        if (!targetUrl) {
+            return res.status(404).json({ message: 'URL not found' });
+        }
+
+        return res.redirect(targetUrl.targetUrl);
+
+    } catch (error) {
+        console.error('Error creating short URL:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export { shortUrl, shortCode };
