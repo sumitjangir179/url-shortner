@@ -25,6 +25,17 @@ const shortUrl = async (req, res) => {
     }
 }
 
+const getAllUrls = async (req, res) => {
+    try {
+        const urls = await db.select().from(urlTable).where(eq(urlTable.userId, req.user.id));
+        return res.status(200).json(urls);
+
+    } catch (error) {
+        console.error('Error fetching URLs:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 const shortCode = async (req, res) => {
     try {
         const { shortCode: code } = req.params
@@ -43,4 +54,4 @@ const shortCode = async (req, res) => {
     }
 }
 
-export { shortUrl, shortCode };
+export { shortUrl, shortCode, getAllUrls };
